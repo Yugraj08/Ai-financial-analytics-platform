@@ -149,6 +149,6 @@ Note:
 
 ---
 
-## 👨‍ Author
+## Author
 
 Yugraj Mewara
