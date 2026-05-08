@@ -140,15 +140,6 @@ Note:
 
 ---
 
-##  Future Improvements
-
-* Add Swagger API documentation
-* Implement frontend (React/Angular)
-* Add unit & integration testing
-* Add refresh token mechanism
-
----
-
 ## Author
 
 Yugraj Mewara
