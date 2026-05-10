@@ -3,7 +3,6 @@ package com.yugraj.financebackend.controller;
 import com.yugraj.financebackend.dto.LoginRequestDTO;
 import com.yugraj.financebackend.dto.UserRequestDTO;
 import com.yugraj.financebackend.exception.BadRequestException;
-import com.yugraj.financebackend.exception.ResourceNotFoundException;
 import com.yugraj.financebackend.exception.UnauthorizedException;
 import com.yugraj.financebackend.model.Role;
 import com.yugraj.financebackend.model.Status;
@@ -15,6 +14,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Map;
+
 @RestController
 @RequestMapping("/auth")
 @RequiredArgsConstructor
@@ -23,12 +24,9 @@ public class AuthController {
     private final UserRepository userRepository;
     private final JwtUtil jwtUtil;
     private final PasswordEncoder passwordEncoder;
-    private Role role;
-
-
 
     @PostMapping("/register")
-    public String register(@Valid @RequestBody UserRequestDTO request) {
+    public Map<String, String> register(@Valid @RequestBody UserRequestDTO request) {
 
         // Check email exists
         if (userRepository.findByEmail(request.getEmail()).isPresent()) {
@@ -53,13 +51,11 @@ public class AuthController {
 
         userRepository.save(user);
 
-        return "User registered successfully";
+        return Map.of("message", "User registered successfully");
     }
 
-
-
     @PostMapping("/login")
-    public String login(@Valid @RequestBody LoginRequestDTO request) {
+    public Map<String, String> login(@Valid @RequestBody LoginRequestDTO request) {
 
         User user = userRepository.findByEmail(request.getEmail())
                 .orElseThrow(() -> new RuntimeException("Invalid email"));
@@ -72,6 +68,7 @@ public class AuthController {
             throw new BadRequestException("Invalid password");
         }
 
-        return jwtUtil.generateToken(user.getId(), user.getRole().name());
+        String token = jwtUtil.generateToken(user.getId(), user.getRole().name());
+        return Map.of("token", token, "role", user.getRole().name());
     }
 }

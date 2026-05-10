@@ -1,6 +1,6 @@
 package com.yugraj.financebackend.dto;
 
-import com.yugraj.financebackend.model.Role;
+//import com.yugraj.financebackend.model.Role;
 import jakarta.validation.constraints.*;
 import lombok.Data;
 
