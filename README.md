@@ -1,145 +1,114 @@
-# Finance Data Processing & Access Control Backend
+# Finance Backend RBAC System
 
-## Project Description
-
-This project is a backend system built using **Spring Boot** for managing financial records securely.
-It implements **JWT-based authentication**, **role-based access control (RBAC)**, filtering, pagination, and dashboard analytics.
-
-The system ensures that users can only access data based on their roles and ownership.
-
----
-
+## Project Overview
+A secure backend system built using Spring Boot for managing financial records with JWT authentication and Role-Based Access Control (RBAC). The project provides secure REST APIs, filtering, pagination, dashboard analytics, and cloud deployment support.
 ## Tech Stack
+- Java 17
+- Spring Boot
+- Spring Security
+- JWT Authentication
+- Spring Data JPA
+- MySQL
+- Docker
+- Render
+- Swagger / OpenAPI
+## Features
 
-* Java 17
-* Spring Boot
-* Spring Security (JWT)
-* Spring Data JPA
-* MySQL
-* Lombok
+- JWT-based Authentication & Authorization
+- Role-Based Access Control (ADMIN, ANALYST, VIEWER)
+- Secure Financial Record CRUD APIs
+- Filtering & Pagination Support
+- Dashboard Analytics (Income, Expense, Balance)
+- User Role & Status Management
+- Global Exception Handling
+- Input Validation using Hibernate Validator
+- Swagger API Documentation
+- Cloud Deployment using Docker & Render
 
----
-
-##  Features
-
-* User Registration & Login (JWT Authentication)
-* Role-Based Access Control (ADMIN, ANALYST, VIEWER)
-* User Status Management (ACTIVE / INACTIVE)
-* Secure Record CRUD APIs
-* Filtering using Specification API
-* Pagination support
-* Dashboard (Income, Expense, Balance, Category Summary)
-* Global Exception Handling
-* Input Validation using Hibernate Validator
-
----
-
-##  Setup Instructions
-
-1. Clone the repository
-2. Open the project in IntelliJ IDEA
-3. Configure MySQL database in `application.properties`
-4. Run the Spring Boot application
-5. Use Postman to test APIs
-
----
-
-##  Authentication Flow
-
-1. User logs in using `/auth/login`
-2. Server returns a JWT token
-3. Token must be sent in header:
-
-   ```
-   Authorization: Bearer <token>
-   ```
-4. JwtFilter extracts userId and role from token
-5. Spring Security enforces access using roles
-
----
 
 ## API Endpoints
 
-### 🔹 Auth APIs
+### Authentication APIs
+- `POST /auth/register`
+- `POST /auth/login`
 
-* `POST /auth/register` → Register user
-* `POST /auth/login` → Login & get JWT
+### Record APIs
+- `POST /records`
+- `GET /records`
+- `PUT /records/{id}`
+- `DELETE /records/{id}`
 
----
+### Dashboard API
+- `GET /records/dashboard`
 
-### 🔹 Record APIs
+### User Management
+- `PUT /users/{id}/role`
+## Authentication Flow 
+1. User logs in using `/auth/login`
+2. Server returns JWT token
+3. Token must be sent in request header:
+4. Authorization: Bearer <token>
+5. Spring Security validates token and role permissions
+## Deployment
+Live API
 
-* `POST /records` → Create record
-* `GET /records` → Get records (with filters & pagination)
-* `PUT /records/{id}` → Update record
-* `DELETE /records/{id}` → Delete record
+https://finance-backend-rbac.onrender.com
 
----
+Swagger Documentation
 
-### 🔹 Dashboard API
+https://finance-backend-rbac.onrender.com/swagger-ui/index.html
+## Run Locally
 
-* `GET /records/dashboard` → Get summary (income, expense, balance, category)
+Clone the project
 
----
+```bash
+  git clone https://github.com/Yugraj08/finance-backend-rbac.git
+```
 
-### 🔹 User Management
+## Configure Environment Variables
+DB_URL=your_database_url;
 
-* `PUT /users/{id}/role` → Update user role (ADMIN only)
+DB_USERNAME=your_username;
 
----
+DB_PASSWORD=your_password;
 
-##  RBAC (Role-Based Access Control)
+JWT_SECRET=your_secret_key;
 
-| Role    | Permissions      |
-| ------- | ---------------- |
-| ADMIN   | Full access      |
-| ANALYST | Read + dashboard |
-| VIEWER  | Read only        |
 
----
 
-##  Assumptions
+## Create MySQL Database
+```bash
+ CREATE DATABASE finance_backend;
+```
 
-* Role is not assigned during registration for security reasons
-* JWT is stateless, so role updates require re-login
-* Passwords are stored securely using BCrypt hashing
-* Only authenticated users can access protected APIs
+## Run the Application
 
----
+```bash
+  mvn spring-boot:run
+```
 
-## ️ Trade-offs
+## Access Swagger UI
 
-* Used JWT for stateless authentication instead of session-based approach
-* Used Specification API for flexible filtering instead of fixed queries
-* Focused on backend implementation instead of building a frontend
-* Did not include Swagger documentation to keep project lightweight
+```bash
+  http://localhost:8081/swagger-ui/index.html
+```
 
----
+## Environment Variables
 
-## API Testing (Postman)
+To run this project, you will need to add the following environment variables to your .env file
 
-The Postman collection for all APIs is included in this repository.
+`API_KEY`
 
-### How to use:
-1. Open Postman
-2. Click Import
-3. Select the file: `finance-backend-postman-collection.json`
-4. Test all endpoints
+`ANOTHER_API_KEY`
 
-Note:
-- Base URL: http://localhost:8081
-- Use JWT token from login API for secured endpoints
 
----
+## Appendix
 
-##  Important Notes
+- JWT authentication is stateless
 
-* After updating user role, user must login again to get updated permissions
-* Unauthorized access is restricted using Spring Security annotations
-* Proper exception handling is implemented for better API responses
+- BCrypt hashing is used for password security
 
----
+- Protected APIs require a valid JWT token
 
-## Author
+- Free Render deployment may take a few seconds to wake up after inactivity
 
-Yugraj Mewara
