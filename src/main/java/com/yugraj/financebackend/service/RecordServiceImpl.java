@@ -33,7 +33,7 @@ public class RecordServiceImpl implements RecordService {
 
 
     //CREATE RECORD
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("isAuthenticated()")
     @Override
     public RecordResponseDTO createRecord(Long userId, RecordRequestDTO request) {
 
@@ -210,7 +210,7 @@ public class RecordServiceImpl implements RecordService {
     }
 
     @Override
-    @PreAuthorize("hasAnyRole('ADMIN', 'ANALYST')")
+    @PreAuthorize("isAuthenticated()")
     public DashboardResponseDTO getDashboard(Long userId) {
 
         Double income = recordRepository.getTotalIncome(userId);
@@ -225,7 +225,7 @@ public class RecordServiceImpl implements RecordService {
         return new DashboardResponseDTO(income, expense, balance);
     }
 
-    @PreAuthorize("hasAnyRole('ADMIN', 'ANALYST')")
+    @PreAuthorize("isAuthenticated()")
     public List<CategorySummaryDTO> getCategorySummary(Long userId) {
         return recordRepository.getCategorySummary(userId)
                 .stream()

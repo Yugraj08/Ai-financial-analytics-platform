@@ -27,7 +27,7 @@ public class RecordController {
     }
 
     //Dashboard endpoint
-    @PreAuthorize("hasAnyRole('ADMIN','ANALYST')")
+    @PreAuthorize("isAuthenticated()")
     @GetMapping("/dashboard")
     public DashboardResponseDTO getDashboard() {
         return recordService.getDashboard(getCurrentUserId());
