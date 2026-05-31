@@ -60,7 +60,7 @@ public class RecordController {
 
     //Get ALL (Filter + Pagination)
     @GetMapping
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasRole('isAuthenticated()')")
     public List<RecordResponseDTO> getAllRecords(
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size,
