@@ -6,10 +6,16 @@ import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
+import org.springframework.data.domain.Pageable;
 import java.util.List;
 
 public interface RecordRepository extends JpaRepository<Record, Long>,
         JpaSpecificationExecutor<Record> {
+
+    /**
+     * Fetch user's records ordered by date desc (for AI context).
+     */
+    List<Record> findByUserIdOrderByDateDesc(Long userId, Pageable pageable);
 
     @Query("SELECT SUM(r.amount) FROM Record r WHERE r.type = 'INCOME' AND r.user.id = :userId")
     Double getTotalIncome(@Param("userId") Long userId);
