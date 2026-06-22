@@ -3,13 +3,17 @@ package com.yugraj.financebackend.config;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.client.SimpleClientHttpRequestFactory;
 import org.springframework.web.client.RestTemplate;
 
-import java.time.Duration;
+/**
+ * Configuration for NVIDIA NIM AI integration.
+ * Reads API credentials from environment variables via application.properties.
+ */
 @Configuration
 public class NvidiaAiConfig {
 
-    @Value("${nvidia.api.key}")
+    @Value("${nvidia.api.key:}")
     private String apiKey;
 
     @Value("${nvidia.api.base-url:https://integrate.api.nvidia.com/v1}")
@@ -19,12 +23,16 @@ public class NvidiaAiConfig {
     private String model;
 
     /**
-     * RestTemplate with 30s connect and 60s read timeouts.
+     * RestTemplate with explicit timeouts for NVIDIA NIM API calls.
      * LLM inference can take 10-30s depending on model and load.
      */
     @Bean(name = "nvidiaRestTemplate")
     public RestTemplate nvidiaRestTemplate() {
-        return new RestTemplate();
+        SimpleClientHttpRequestFactory factory = new SimpleClientHttpRequestFactory();
+        factory.setConnectTimeout(30_000);  // 30 seconds to connect
+        factory.setReadTimeout(60_000);     // 60 seconds to read (LLM can be slow)
+        RestTemplate restTemplate = new RestTemplate(factory);
+        return restTemplate;
     }
 
     public String getApiKey() {
