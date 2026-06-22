@@ -108,10 +108,10 @@ public class NvidiaAiClient {
             return "Could not connect to the AI service. The server may be starting up — please try again in 30 seconds.";
 
         } catch (Exception e) {
-            // Catch-all for unexpected errors
+            // Catch-all: include actual error details for debugging
             log.error("Unexpected error during AI chat: class={}, message={}",
                     e.getClass().getSimpleName(), e.getMessage(), e);
-            return "An unexpected error occurred. Please try again.";
+            return "AI error: [" + e.getClass().getSimpleName() + "] " + e.getMessage();
         }
     }
 

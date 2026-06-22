@@ -26,7 +26,6 @@ public class AiService {
     private final FinancialContextBuilder contextBuilder;
     private final NvidiaAiClient nvidiaAiClient;
 
-
     private static final String SYSTEM_PROMPT = """
             You are FinanceIQ AI, a personal finance assistant integrated into a finance management application.
 
@@ -54,35 +53,56 @@ public class AiService {
 
     /**
      * Processes a user's chat message and returns the AI response.
-     *
-     * @param userMessage The user's question
-     * @return AiChatResponse with the AI's answer and timestamp
+     * Wraps the entire flow in try-catch so errors are returned as
+     * chat responses (not HTTP exceptions) for better UX.
      */
     public AiChatResponse chat(String userMessage) {
-
-        // 1. Get current user ID from JWT security context
-        Long userId = getCurrentUserId();
-        log.info("Processing AI chat for userId={}", userId);
-
-        // 2. Build financial context from database
-        FinancialContext context = contextBuilder.buildContext(userId);
-
-        // 3. Combine system prompt with financial data
-        String fullSystemPrompt = SYSTEM_PROMPT + "\n\n" + context.toPromptText();
-
-        // 4. Call NVIDIA NIM API
-        String aiResponse = nvidiaAiClient.chat(fullSystemPrompt, userMessage);
-
-        // 5. Return formatted response
         String timestamp = LocalDateTime.now()
                 .format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
 
-        return new AiChatResponse(aiResponse, timestamp);
+        try {
+            // 1. Get current user ID from JWT security context
+            Long userId = getCurrentUserId();
+            log.info("Processing AI chat for userId={}", userId);
+
+            // 2. Build financial context from database
+            FinancialContext context;
+            try {
+                context = contextBuilder.buildContext(userId);
+                log.info("Built financial context: income={}, expense={}, txCount={}",
+                        context.getTotalIncome(), context.getTotalExpense(),
+                        context.getTotalTransactionCount());
+            } catch (Exception e) {
+                log.error("Failed to build financial context for userId={}: {} - {}",
+                        userId, e.getClass().getSimpleName(), e.getMessage(), e);
+                return new AiChatResponse(
+                        "Error building your financial context: " + e.getClass().getSimpleName() +
+                                " — " + e.getMessage() +
+                                ". Please report this to the administrator.",
+                        timestamp);
+            }
+
+            // 3. Combine system prompt with financial data
+            String fullSystemPrompt = SYSTEM_PROMPT + "\n\n" + context.toPromptText();
+            log.info("System prompt length: {} chars", fullSystemPrompt.length());
+
+            // 4. Call NVIDIA NIM API
+            String aiResponse = nvidiaAiClient.chat(fullSystemPrompt, userMessage);
+
+            // 5. Return formatted response
+            return new AiChatResponse(aiResponse, timestamp);
+
+        } catch (Exception e) {
+            // Catch-all: return the actual error details so user can report it
+            log.error("AI chat failed: {} - {}", e.getClass().getSimpleName(), e.getMessage(), e);
+            return new AiChatResponse(
+                    "AI chat error: [" + e.getClass().getSimpleName() + "] " + e.getMessage(),
+                    timestamp);
+        }
     }
 
     /**
      * Extracts the current user's ID from the Spring Security context.
-     * The JwtFilter sets the principal as the userId (Long).
      */
     private Long getCurrentUserId() {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
